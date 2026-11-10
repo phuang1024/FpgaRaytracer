@@ -1,26 +1,6 @@
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 11/10/2026 10:26:00 AM
-// Design Name: 
-// Module Name: constants
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+// Global constants.
 
-
-module constants(
-
-    );
-endmodule
+package constants;
+    localparam int FRAME_WIDTH = 640,
+                   FRAME_HEIGHT = 480;
+endpackage
