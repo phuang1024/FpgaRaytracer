@@ -5,5 +5,10 @@ import constants::*;
 
 module rayRender(
     input logic clk, reset
+    input logic start,
+    output logic done
 );
+    always_ff @(posedge clk) begin
+        done <= start;
+    end
 endmodule
