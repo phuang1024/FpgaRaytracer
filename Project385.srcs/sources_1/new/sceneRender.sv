@@ -29,7 +29,14 @@ module sceneRender(
         done <= 0;
         core_start <= 0;
 
-        if (state == S_IDLE) begin
+        if (reset) begin
+            state <= S_IDLE;
+            px_x <= 0;
+            px_y <= 0;
+            prim_x <= 0;
+            prim_y <= 0;
+
+        end else if (state == S_IDLE) begin
             if (start) begin
                 px_x <= 0;
                 px_y <= 0;
