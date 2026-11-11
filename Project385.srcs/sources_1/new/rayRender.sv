@@ -4,7 +4,7 @@
 import constants::*;
 
 module rayRender(
-    input logic clk, reset
+    input logic clk, reset,
     input logic start,
     output logic done
 );
