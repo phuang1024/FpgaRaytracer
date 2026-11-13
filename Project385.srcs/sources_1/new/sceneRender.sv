@@ -28,7 +28,7 @@ module sceneRender(
         .clk(clk), .reset(reset),
         .start(core_start), .done(core_done),
         .prim_x(prim_x), .prim_y(prim_y),
-        .out_r(render_r), .out_g(render_g), .out_b(render_b),
+        .out_r(render_r), .out_g(render_g), .out_b(render_b)
     );
 
     // Next state logic to sweep through frame.

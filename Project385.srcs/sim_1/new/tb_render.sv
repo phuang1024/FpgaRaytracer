@@ -6,7 +6,7 @@ module tb_render();
     logic clk, reset, start, done;
     sceneRender dut(clk, reset, start, done);
 
-    // Output image. TODO RGB?
+    // Output image. [23:0] is BGR order.
     logic[23:0] render_result[FRAME_W][FRAME_H];
 
     // Clock.
@@ -30,6 +30,7 @@ module tb_render();
         start = 0;
 
         wait(done);
+        save_bmp("render_result.bmp");
         $finish;
     end
 
@@ -42,7 +43,7 @@ module tb_render();
 
         end else begin
             if (dut.core_done)
-                render_result[dut.px_x][dut.px_y] = {dut.render_r, dut.render_g, dut.render_b};
+                render_result[dut.px_x][dut.px_y] = {dut.render_b, dut.render_g, dut.render_r};
         end
     end
 

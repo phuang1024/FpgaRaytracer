@@ -13,7 +13,7 @@ module rayRender(
 
     output logic[7:0] out_r, out_g, out_b
 );
-    assign out_r = 0;
+    assign out_r = 255;
     assign out_g = 0;
     assign out_b = 0;
 
