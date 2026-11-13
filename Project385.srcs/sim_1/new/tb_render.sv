@@ -19,6 +19,7 @@ module tb_render();
 
     // Main test.
     initial begin
+        start = 0;
         reset = 1;
         repeat(4) @(posedge clk);
         reset = 0;
