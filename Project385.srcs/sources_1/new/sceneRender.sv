@@ -22,9 +22,16 @@ module sceneRender(
     q8_16_t prim_x, prim_y;
 
     logic core_start, core_done;
-    rayRender render_core(clk, reset, core_start, core_done);
+    // Pixel render RGB output.
+    logic[7:0] render_r, render_g, render_b;
+    rayRender render_core(
+        .clk(clk), .reset(reset),
+        .start(core_start), .done(core_done),
+        .prim_x(prim_x), .prim_y(prim_y),
+        .out_r(render_r), .out_g(render_g), .out_b(render_b),
+    );
 
-    // Next state logic.
+    // Next state logic to sweep through frame.
     always_ff @(posedge clk) begin
         done <= 0;
         core_start <= 0;
