@@ -3,7 +3,9 @@
 import constants::*;
 
 
-module planeSect(
+module planeSect
+    import divider_pkg::*;
+(
     input logic clk, reset,
     input logic start,
     output logic done,
@@ -22,7 +24,7 @@ module planeSect(
     logic signed[47:0] intersect_x_tmp;
 
     // TODO this should be in higher level module
-    divider_if div_if(.*);
+    divider_if div_if;
     divider divider(.*);
 
     always @(posedge clk) begin
@@ -47,7 +49,7 @@ module planeSect(
                 state <= S_IDLE;
                 done <= 1;
                 // Assign results.
-                intersect_y = div_if.q[47:24];
+                intersect_y = div_if.q;
                 intersect_x_tmp = intersect_y * prim_x;
                 intersect_x <= intersect_x_tmp[39:16];
             end

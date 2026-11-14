@@ -1,23 +1,26 @@
 // Instances and wraps fixed point divider IP.
 
-
-typedef struct packed {
-    logic start, done;
-    logic signed[23:0] a, b, q;
-} divider_if;
+package divider_pkg;
+    typedef struct packed {
+        logic start, done;
+        logic signed[23:0] a, b, q;
+    } divider_if;
+endpackage
 
 
 // Computes Q = A / B, all q8_16_t
-module divider(
+module divider
+    import divider_pkg::*;
+(
     input logic clk, reset,
-    inout divider_if div_if
+    divider_if div_if
 );
     logic[63:0] q_tmp;
     assign div_if.q = q_tmp[47:24];
 
     div_q8_16 divider(
-        .aclk(div_if.clk),
-        .aresetn(~div_if.reset),
+        .aclk(clk),
+        .aresetn(~reset),
 
         // Bit shift A by 16 (fractional part).
         .s_axis_dividend_tvalid(div_if.start),
