@@ -10,8 +10,11 @@ module planeSect
     input logic start,
     output logic done,
 
+    // Divider interface.
+    divider_if div_if,
+
     input q8_16_t prim_x, prim_y,
-    output q8_16_t intersect_x, intersect_y
+    output q8_16_t sect_x, sect_y
 );
     typedef enum logic[2:0] {
         S_IDLE,
@@ -21,11 +24,7 @@ module planeSect
     state_t state;
 
     // Tmp wire for multiplication.
-    logic signed[47:0] intersect_x_tmp;
-
-    // TODO this should be in higher level module
-    divider_if div_if;
-    divider divider(.*);
+    logic signed[47:0] sect_x_tmp;
 
     always @(posedge clk) begin
         done <= 0;
@@ -49,9 +48,9 @@ module planeSect
                 state <= S_IDLE;
                 done <= 1;
                 // Assign results.
-                intersect_y = div_if.q;
-                intersect_x_tmp = intersect_y * prim_x;
-                intersect_x <= intersect_x_tmp[39:16];
+                sect_y = div_if.q;
+                sect_x_tmp = sect_y * prim_x;
+                sect_x <= sect_x_tmp[39:16];
             end
         end
     end

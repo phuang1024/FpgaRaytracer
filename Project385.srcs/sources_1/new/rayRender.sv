@@ -22,14 +22,20 @@ module rayRender(
     state_t state;
 
     // Fixed point divider, shared across all submodules.
-    // divider_if div_if(.*);
-    // divider divider(.*);
+    divider_if div_if;
+    divider divider(.*);
 
     // TODO test: Intersect primary ray with ground plane. Checkerboard texture.
-    q8_16_t intersect_x, intersect_y;
+    q8_16_t sect_x, sect_y;
 
     logic plane_sect_start, plane_sect_done;
-    planeSect planeSect(.start(plane_sect_start), .done(plane_sect_done), .*);
+    divider_if plane_sect_div;
+    planeSect planeSect(
+        .start(plane_sect_start),
+        .done(plane_sect_done),
+        .div_if(plane_sect_div),
+        .*
+    );
 
     always_ff @(posedge clk) begin
         done <= 0;
@@ -56,7 +62,7 @@ module rayRender(
             done <= 1;
 
             // Checkerboard texture.
-            if (intersect_x[16] ^ intersect_y[16]) begin
+            if (sect_x[16] ^ sect_y[16]) begin
                 out_r <= 255;
                 out_g <= 0;
                 out_b <= 0;
@@ -66,5 +72,13 @@ module rayRender(
                 out_b <= 255;
             end
         end
+    end
+
+    // Mux for div_if.
+    always_comb begin
+        case (state)
+            PLANE_SECT: div_if = plane_sect_div;
+            default: div_if = 0;
+        endcase
     end
 endmodule
