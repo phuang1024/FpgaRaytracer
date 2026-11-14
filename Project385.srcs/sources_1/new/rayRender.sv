@@ -3,7 +3,9 @@
 
 import constants::*;
 
-module rayRender(
+module rayRender
+    import divider_pkg::*;
+(
     input logic clk, reset,
     input logic start,
     output logic done,
@@ -77,7 +79,13 @@ module rayRender(
     // Mux for div_if.
     always_comb begin
         case (state)
-            PLANE_SECT: div_if = plane_sect_div;
+            PLANE_SECT: begin
+                div_if.start = plane_sect_div.start;
+                div_if.a = plane_sect_div.a;
+                div_if.b = plane_sect_div.b;
+                plane_sect_div.done = div_if.done;
+                plane_sect_div.q = div_if.q;
+            end
             default: div_if = 0;
         endcase
     end
