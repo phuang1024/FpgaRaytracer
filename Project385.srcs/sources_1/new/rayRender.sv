@@ -28,6 +28,7 @@ module rayRender
     divider divider(.*);
 
     // TODO test: Intersect primary ray with ground plane. Checkerboard texture.
+    logic sect;
     q8_16_t sect_x, sect_y;
 
     logic plane_sect_start, plane_sect_done;
@@ -64,14 +65,14 @@ module rayRender
             done <= 1;
 
             // Checkerboard texture.
-            if (sect_x[16] ^ sect_y[16]) begin
-                out_r <= 255;
-                out_g <= 0;
-                out_b <= 0;
-            end else begin
-                out_r <= 0;
-                out_g <= 0;
-                out_b <= 255;
+            out_r <= 0;
+            out_g <= 0;
+            out_b <= 0;
+            if (sect) begin
+                if (sect_x[16] ^ sect_y[16])
+                    out_r <= 255;
+                else
+                    out_b <= 255;
             end
         end
     end
@@ -85,6 +86,7 @@ module rayRender
                 div_if.b = plane_sect_div.b;
                 plane_sect_div.done = div_if.done;
                 plane_sect_div.q = div_if.q;
+                plane_sect_div.overflow = div_if.overflow;
             end
             default: div_if = 0;
         endcase

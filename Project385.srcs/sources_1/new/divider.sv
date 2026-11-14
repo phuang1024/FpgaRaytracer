@@ -4,6 +4,7 @@ package divider_pkg;
     typedef struct packed {
         logic start, done;
         logic signed[23:0] a, b, q;
+        logic overflow;
     } divider_if;
 endpackage
 
@@ -17,6 +18,9 @@ module divider
 );
     logic[63:0] q_tmp;
     assign div_if.q = q_tmp[47:24];
+
+    // Compare truncated sign bits to detect overflow.
+    assign overflow = (q_tmp[63:47] != {17{q_tmp[47]}});
 
     div_q8_16 divider(
         .aclk(clk),
