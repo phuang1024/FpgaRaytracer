@@ -15,40 +15,25 @@ module rayRender(
 );
     typedef enum logic[2:0] {
         S_IDLE,
-        S_OUTPUT,
+        S_DONE,
 
-        PLANE_SECT1,
-        PLANE_SECT2
+        PLANE_SECT
     } state_t;
     state_t state;
 
-    // Fixed point divider IP.
-    logic div_start, div_done;
-    logic signed[23:0] div_a, div_b;
-    logic[63:0] div_out;
-    div_q8_16 divider(
-        .aclk(clk),
-        .aresetn(~reset),
-
-        // Bit shift A by 16 (fractional part).
-        .s_axis_dividend_tvalid(div_start),
-        .s_axis_dividend_tdata({div_a, 16'b0}),
-        // Keep B as is.
-        .s_axis_divisor_tvalid(div_start),
-        .s_axis_divisor_tdata(div_b),
-        // Output 64 bit result (40 quotient and 24 remainder).
-        .m_axis_dout_tvalid(div_done),
-        .m_axis_dout_tdata(div_out)
-    );
+    // Fixed point divider, shared across all submodules.
+    // divider_if div_if(.*);
+    // divider divider(.*);
 
     // TODO test: Intersect primary ray with ground plane. Checkerboard texture.
     q8_16_t intersect_x, intersect_y;
 
-    `include "planeSect.svh"
+    logic plane_sect_start, plane_sect_done;
+    planeSect planeSect(.start(plane_sect_start), .done(plane_sect_done), .*);
 
     always_ff @(posedge clk) begin
         done <= 0;
-        div_start <= 0;
+        plane_sect_start <= 0;
 
         if (reset) begin
             state <= S_IDLE;
@@ -56,32 +41,30 @@ module rayRender(
             out_g <= 0;
             out_b <= 0;
 
-        end else begin
-            case (state)
-                S_IDLE: begin
-                    if (start)
-                        state <= PLANE_SECT1;
-                end
+        end else if (state == S_IDLE) begin
+            if (start) begin
+                state <= PLANE_SECT;
+                plane_sect_start <= 1;
+            end
 
-                S_OUTPUT: begin
-                    state <= S_IDLE;
-                    done <= 1;
+        end else if (state == PLANE_SECT) begin
+            if (plane_sect_done)
+                state <= S_DONE;
 
-                    // Checkerboard texture.
-                    if (intersect_x[16] ^ intersect_y[16]) begin
-                        out_r <= 255;
-                        out_g <= 0;
-                        out_b <= 0;
-                    end else begin
-                        out_r <= 0;
-                        out_g <= 0;
-                        out_b <= 255;
-                    end
-                end
+        end else if (state == S_DONE) begin
+            state <= S_IDLE;
+            done <= 1;
 
-                PLANE_SECT1, PLANE_SECT2:
-                    plane_sect_loop();
-            endcase
+            // Checkerboard texture.
+            if (intersect_x[16] ^ intersect_y[16]) begin
+                out_r <= 255;
+                out_g <= 0;
+                out_b <= 0;
+            end else begin
+                out_r <= 0;
+                out_g <= 0;
+                out_b <= 255;
+            end
         end
     end
 endmodule
