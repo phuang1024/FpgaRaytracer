@@ -14,7 +14,7 @@ package constants;
     localparam q8_16_t PX_ANGLE = 24'h0000cc;
     // Primary ray X and Y components at top left pixel location.
     localparam q8_16_t PRIM_MIN_X = PX_ANGLE * (FRAME_W / 2 - 0.5) * -1,
-                       PRIM_MIN_Y = PX_ANGLE * (FRAME_H / 2 - 0.5) * -1;
+                       PRIM_MAX_Y = PX_ANGLE * (FRAME_H / 2 - 0.5);
 
 
     // Scene objects.

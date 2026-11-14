@@ -37,11 +37,19 @@ module planeSect
 
         end else if (state == S_IDLE) begin
             if (start) begin
-                state <= S1;
-                // Initiate Cz / Rz.
-                div_if.a <= CAM_Z;
-                div_if.b <= prim_y;
-                div_if.start <= 1;
+                // Only intersects if ray is downward.
+                if (prim_y < 24'sh0) begin
+                    state <= S1;
+                    // Initiate Cz / Rz.
+                    div_if.a <= CAM_Z;
+                    div_if.b <= prim_y;
+                    div_if.start <= 1;
+                    
+                end else begin
+                    state <= S_IDLE;
+                    done <= 1;
+                    sect <= 0;
+                end
             end
 
         end else if (state == S1) begin

@@ -20,7 +20,7 @@ module divider
     assign div_if.q = q_tmp[47:24];
 
     // Compare truncated sign bits to detect overflow.
-    assign overflow = (q_tmp[63:47] != {17{q_tmp[47]}});
+    assign overflow = (q_tmp[63:47] != {17{q_tmp[47]}}) || div_if.b == (24'sh0);
 
     div_q8_16 divider(
         .aclk(clk),
