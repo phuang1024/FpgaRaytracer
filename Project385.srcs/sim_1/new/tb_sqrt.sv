@@ -26,9 +26,8 @@ module tb_sqrt();
         test_number(24'h040000);
         test_number(24'h070000);
         test_number(24'h090000);
-        test_number(24'hcc0000);
+        test_number(24'h7c0000);
 
-        save_bmp("render_result.bmp");
         $finish;
     end
 

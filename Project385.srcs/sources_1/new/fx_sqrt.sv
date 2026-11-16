@@ -88,7 +88,7 @@ end
 
 
     always_ff @(posedge clk) begin
-        if (reset)
+        if (reset) begin
             state <= IDLE; 
             X <= 0; 
             A <= 0; 
@@ -100,6 +100,7 @@ end
             A <= A_next; 
             Q <= Q_next; 
             count <= count_next;
+        end
     end
 
     
