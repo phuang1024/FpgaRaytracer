@@ -19,7 +19,8 @@ module rayRender
         S_IDLE,
         S_DONE,
 
-        PLANE_SECT
+        PLANE_SECT,
+        SPHERE_SECT
     } state_t;
     state_t state;
 
@@ -37,6 +38,15 @@ module rayRender
         .start(plane_sect_start),
         .done(plane_sect_done),
         .div_if(plane_sect_div),
+        .*
+    );
+    
+    logic sphere_sect_start, sphere_sect_done;
+    divider_if sphere_sect_div;
+    sphereSect sphereSect(
+        .start(sphere_sect_start),
+        .done(sphere_sect_done),
+        .div_if(sphere_sect_div),
         .*
     );
 
