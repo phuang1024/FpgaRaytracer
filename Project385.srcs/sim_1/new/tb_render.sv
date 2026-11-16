@@ -4,7 +4,7 @@ import constants::*;
 
 module tb_render();
     logic clk, reset, start, done;
-    sceneRender dut(clk, reset, start, done);
+    sceneRender dut(.*);
 
     // Output image. [23:0] is BGR order.
     logic[23:0] render_result[FRAME_W][FRAME_H];
@@ -29,7 +29,7 @@ module tb_render();
         @(posedge clk);
         start = 0;
 
-        wait(done);
+        wait (done);
         save_bmp("render_result.bmp");
         $finish;
     end
