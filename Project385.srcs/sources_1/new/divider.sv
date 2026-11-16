@@ -1,11 +1,9 @@
 // Instances and wraps fixed point divider IP.
 
-import constants::*;
-
 package divider_pkg;
     typedef struct packed {
         logic start, done;
-        q8_16_t a, b, q;
+        logic signed [23:0] a, b, q;
         logic overflow;
     } divider_if;
 endpackage
