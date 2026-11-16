@@ -18,6 +18,7 @@ package constants;
 
 
     // Scene objects.
-    // Cam location = (0, 0, 1).
-    localparam q8_16_t CAM_X = 0, CAM_Y = 0, CAM_Z = 24'h010000;
+    // Cam location = (0, -3, 1).
+    // Cam is facing +y.
+    localparam q8_16_t CAM_X = 0, CAM_Y = 24'hfd0000, CAM_Z = 24'h010000;
 endpackage

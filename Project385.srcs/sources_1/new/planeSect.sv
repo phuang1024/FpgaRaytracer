@@ -59,11 +59,11 @@ module planeSect
                 done <= 1;
 
                 // Calculate XY intersection coords.
-                sect_y = div_if.q;
-                sect_x_tmp = sect_y * prim_x;
-                sect_x <= sect_x_tmp[39:16];
+                sect_y <= div_if.q + CAM_Y;
+                sect_x_tmp = div_if.q * prim_x;
+                sect_x <= sect_x_tmp[39:16] + CAM_X;
 
-                // Check if in bounds.
+                // Check if in bounds of plane.
                 sect <= (~div_if.overflow
                          && -24'sh050000 < sect_x
                          && sect_x < 24'sh050000
