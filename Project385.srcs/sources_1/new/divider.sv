@@ -1,0 +1,39 @@
+// Instances and wraps fixed point divider IP.
+
+package divider_pkg;
+    typedef struct packed {
+        logic start, done;
+        logic signed[23:0] a, b, q;
+        logic overflow;
+    } divider_if;
+endpackage
+
+
+// Computes Q = A / B, all q8_16_t
+module divider
+    import divider_pkg::*;
+(
+    input logic clk, reset,
+    divider_if div_if
+);
+    logic[63:0] q_tmp;
+    assign div_if.q = q_tmp[47:24];
+
+    // Compare truncated sign bits to detect overflow.
+    assign overflow = (q_tmp[63:47] != {17{q_tmp[47]}}) || div_if.b == (24'sh0);
+
+    div_q8_16 divider(
+        .aclk(clk),
+        .aresetn(~reset),
+
+        // Bit shift A by 16 (fractional part).
+        .s_axis_dividend_tvalid(div_if.start),
+        .s_axis_dividend_tdata({div_if.a, 16'b0}),
+        // Keep B as is.
+        .s_axis_divisor_tvalid(div_if.start),
+        .s_axis_divisor_tdata(div_if.b),
+        // Output 64 bit result (40 quotient and 24 remainder).
+        .m_axis_dout_tvalid(div_if.done),
+        .m_axis_dout_tdata(q_tmp)
+    );
+endmodule

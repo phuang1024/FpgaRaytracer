@@ -18,7 +18,7 @@ module sceneRender(
 
     // Pixel indices for sweep through frame.
     logic[9:0] px_x, px_y;
-    // Primary ray XY components.
+    // Primary ray XY components. During sweep, X increases, Y decreases.
     q8_16_t prim_x, prim_y;
 
     logic core_start, core_done;
@@ -48,7 +48,7 @@ module sceneRender(
                 px_x <= 0;
                 px_y <= 0;
                 prim_x <= PRIM_MIN_X;
-                prim_y <= PRIM_MIN_Y;
+                prim_y <= PRIM_MAX_Y;
 
                 core_start <= 1;
                 state <= S_WAIT_CORE;
@@ -75,7 +75,7 @@ module sceneRender(
                     px_x <= 0;
                     px_y <= px_y + 1;
                     prim_x <= PRIM_MIN_X;
-                    prim_y <= prim_y + PX_ANGLE;
+                    prim_y <= prim_y - PX_ANGLE;
                 end
 
             end else begin
