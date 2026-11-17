@@ -1,5 +1,6 @@
 import constants::*;
 
+
 module fx_sqrt (
     input  logic   clk, reset,
     input  logic   start,          // 1-cycle pulse, v must be valid this cycle
@@ -22,7 +23,7 @@ module fx_sqrt (
     logic [QW-1:0] Q, Q_next;
     logic [4:0]    count, count_next;   // counts 0..19
 
-  
+
     logic [AW-1:0]       A_shift;       // A after shifting in 2 bits of X
     logic signed [AW:0]  T;             // A_shift - {Q, 01}, 1 extra bit for sign
 
@@ -38,7 +39,7 @@ module fx_sqrt (
         count_next = count;
         done       = 1'b0;
 
-        
+
         A_shift = {A[AW-3:0], X[XW-1:XW-2]};     // "Left shift X by two places into A"
         T = {1'b0, A_shift}
           - {1'b0, Q, 2'b01};              // "Set T = A - {Q,01}" ; (zero-extend both sides to AW+1 bits so T[AW] is the sign bit)
@@ -59,7 +60,7 @@ module fx_sqrt (
                 state_next = BUSY;
             end
         end
-      
+
 
         BUSY: begin
             X_next = X << 2;
@@ -83,27 +84,62 @@ module fx_sqrt (
         end
 
         default: state_next = IDLE;
-    endcase
-end
+        endcase
+    end
 
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            state <= IDLE; 
-            X <= 0; 
-            A <= 0; 
-            Q <= 0; 
+            state <= IDLE;
+            X <= 0;
+            A <= 0;
+            Q <= 0;
             count <= 0;
         end else begin
-            state <= state_next; 
-            X <= X_next; 
-            A <= A_next; 
-            Q <= Q_next; 
+            state <= state_next;
+            X <= X_next;
+            A <= A_next;
+            Q <= Q_next;
             count <= count_next;
         end
     end
 
-    
+
     assign root = {4'b0, Q};
 
+endmodule
+
+
+module fx_dot(
+    input logic clk, reset,
+    input logic start,
+    output logic done,
+
+    input vec3 a, b,
+    output q8_16_t prod
+);
+endmodule
+
+
+// Compute norm of a vector.
+module fx_norm(
+    input logic clk, reset,
+    input logic start,
+    output logic done,
+
+    input vec3 v,
+    output q8_16_t norm
+);
+endmodule
+
+
+// Normalize a vector.
+module fx_normalize(
+    input logic clk, reset,
+    input logic start,
+    output logic done,
+
+    input vec3 v,
+    output vec3 v_norm,
+);
 endmodule
