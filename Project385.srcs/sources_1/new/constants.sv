@@ -3,6 +3,18 @@
 package constants;
     // Fixed point 8bit int, 16bit frac.
     typedef logic signed [23:0] q8_16_t;
+    
+    // 3D vector.
+    typedef struct packed {
+        q8_16_t x, y, z;
+    } vec3;
+
+    // Intersection point and normal.
+    typedef struct packed {
+        logic sect;
+        vec3 loc;
+        vec3 nrm;
+    } sect_if;
 
 
     // Dimensions of render result in pixels.

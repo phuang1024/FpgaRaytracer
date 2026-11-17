@@ -6,7 +6,6 @@ import constants::*;
 
 module rayRender
     import divider_pkg::*;
-    import scene_pkg::*;
 (
     input logic clk, reset,
     input logic start,
@@ -37,7 +36,7 @@ module rayRender
         .start(plane_sect_start),
         .done(plane_sect_done),
         .div_if(plane_sect_div),
-        .sect_if(plane_sect),
+        .sect(plane_sect),
         .*
     );
 
@@ -48,7 +47,7 @@ module rayRender
         .start(sphere_sect_start),
         .done(sphere_sect_done),
         .div_if(sphere_sect_div),
-        .sect_if(sphere_sect),
+        .sect(sphere_sect),
         .*
     );
 

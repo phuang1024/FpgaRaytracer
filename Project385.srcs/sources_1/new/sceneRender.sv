@@ -5,20 +5,6 @@
 import constants::*;
 
 
-package scene_pkg;
-    typedef struct packed {
-        q8_16_t x, y, z;
-    } vec3;
-
-    // Intersection point and normal.
-    typedef struct packed {
-        logic sect;
-        vec3 loc;
-        vec3 nrm;
-    } sect_if;
-endpackage
-
-
 module sceneRender(
     input logic clk, reset,
     input logic start,
