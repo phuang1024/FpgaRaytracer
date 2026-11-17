@@ -110,26 +110,163 @@ module fx_sqrt (
 endmodule
 
 
-module fx_dot(
-    input logic clk, reset,
-    input logic start,
-    output logic done,
-
-    input vec3 a, b,
+module fx_multiply(
+    input q8_16_t a, b,
     output q8_16_t prod
 );
+    logic signed[47:0] prod_tmp;
+    assign prod_tmp = a * b;
+    assign prod = prod_tmp[39:16];
+endmodule
+
+
+module fx_dot(
+    input  logic   clk, reset,
+    input  logic   start,
+    output logic   done,
+
+    input  vec3    a, b,
+    output q8_16_t prod
+);
+    typedef enum logic [2:0] {
+        S_IDLE,
+        SADD1,
+        SADD2,
+        SADD3,
+        S_DONE
+    } state_t;
+    state_t state;
+
+    q8_16_t mult_a, mult_b, mult_prod;
+    fx_multiply multiplier(.a(mult_a), .b(mult_b), .prod(mult_prod));
+
+    // 1. Drive multiplier inputs combinationally based on current state
+    always_comb begin
+        mult_a = '0;
+        mult_b = '0;
+        case (state)
+            SADD1: begin mult_a = a.x; mult_b = b.x; end
+            SADD2: begin mult_a = a.y; mult_b = b.y; end
+            SADD3: begin mult_a = a.z; mult_b = b.z; end
+            default: begin mult_a = '0; mult_b = '0; end
+        endcase
+    end
+
+    // 2. Accumulate the settled multiplier output on each clock edge
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            state <= S_IDLE;
+            prod  <= '0;
+            done  <= 1'b0;
+        end else begin
+            done <= 1'b0; // Default low
+            case (state)
+                S_IDLE: begin
+                    if (start) begin
+                        state <= SADD1;
+                        prod  <= '0;
+                    end
+                end
+                SADD1: begin
+                    state <= SADD2;
+                    prod  <= prod + mult_prod;
+                end
+                SADD2: begin
+                    state <= SADD3;
+                    prod  <= prod + mult_prod;
+                end
+                SADD3: begin
+                    state <= S_DONE;
+                    prod  <= prod + mult_prod;
+                end
+                S_DONE: begin
+                    state <= S_IDLE;
+                    done  <= 1'b1;
+                end
+                default: state <= S_IDLE;
+            endcase
+        end
+    end
 endmodule
 
 
 // Compute norm of a vector.
 module fx_norm(
-    input logic clk, reset,
-    input logic start,
-    output logic done,
+    input  logic   clk, reset,
+    input  logic   start,
+    output logic   done,
 
-    input vec3 v,
+    input  vec3    v,
     output q8_16_t norm
 );
+    logic dot_start, dot_done;
+    q8_16_t norm_squared;
+    fx_dot dotter(
+        .start(dot_start),
+        .done(dot_done),
+        .a(v),
+        .b(v),
+        .prod(norm_squared),
+        .*
+    );
+
+    logic root_start, root_done;
+    fx_sqrt rooter(
+        .start(root_start),
+        .done(root_done),
+        .v(norm_squared),
+        .root(norm),
+        .*
+    );
+
+    typedef enum logic [2:0] {
+        S_IDLE,
+        S_DOT_WAIT,
+        S_SQRT_WAIT,
+        S_DONE
+    } state_t;
+    state_t state;
+
+    always_ff @(posedge clk) begin
+        // Default single-cycle pulses to 0
+        done       <= 1'b0;
+        dot_start  <= 1'b0;
+        root_start <= 1'b0;
+
+        if (reset) begin
+            state <= S_IDLE;
+
+        end else begin
+            case (state)
+                S_IDLE: begin
+                    if (start) begin
+                        dot_start <= 1'b1;
+                        state     <= S_DOT_WAIT;
+                    end
+                end
+
+                S_DOT_WAIT: begin
+                    if (dot_done) begin
+                        root_start <= 1'b1;
+                        state      <= S_SQRT_WAIT;
+                    end
+                end
+
+                S_SQRT_WAIT: begin
+                    if (root_done) begin
+                        state <= S_DONE;
+                    end
+                end
+
+                S_DONE: begin
+                    done  <= 1'b1;
+                    state <= S_IDLE;
+                end
+
+                default: state <= S_IDLE;
+            endcase
+        end
+    end
 endmodule
 
 
