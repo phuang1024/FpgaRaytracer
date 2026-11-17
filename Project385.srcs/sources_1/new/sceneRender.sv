@@ -4,6 +4,21 @@
 
 import constants::*;
 
+
+package scene_pkg;
+    typedef struct packed {
+        q8_16_t x, y, z;
+    } vec3;
+
+    // Intersection point and normal.
+    typedef struct packed {
+        logic sect;
+        vec3 loc;
+        vec3 nrm;
+    } sect_if;
+endpackage
+
+
 module sceneRender(
     input logic clk, reset,
     input logic start,
@@ -18,8 +33,8 @@ module sceneRender(
 
     // Pixel indices for sweep through frame.
     logic[9:0] px_x, px_y;
-    // Primary ray XY components. During sweep, X increases, Y decreases.
-    q8_16_t prim_x, prim_y;
+    // Primary ray. During sweep, X increases, Z decreases. Y is 1.
+    vec3 primary;
 
     logic core_start, core_done;
     // Pixel render RGB output.
@@ -27,7 +42,7 @@ module sceneRender(
     rayRender render_core(
         .clk(clk), .reset(reset),
         .start(core_start), .done(core_done),
-        .prim_x(prim_x), .prim_y(prim_y),
+        .primary(primary),
         .out_r(render_r), .out_g(render_g), .out_b(render_b)
     );
 
@@ -40,15 +55,15 @@ module sceneRender(
             state <= S_IDLE;
             px_x <= 0;
             px_y <= 0;
-            prim_x <= 0;
-            prim_y <= 0;
+            primary <= 0;
 
         end else if (state == S_IDLE) begin
             if (start) begin
                 px_x <= 0;
                 px_y <= 0;
-                prim_x <= PRIM_MIN_X;
-                prim_y <= PRIM_MAX_Y;
+                primary.x <= PRIM_MIN_X;
+                primary.y <= 0;
+                primary.z <= PRIM_MAX_Y;
 
                 core_start <= 1;
                 state <= S_WAIT_CORE;
@@ -74,14 +89,14 @@ module sceneRender(
                     // Next row.
                     px_x <= 0;
                     px_y <= px_y + 1;
-                    prim_x <= PRIM_MIN_X;
-                    prim_y <= prim_y - PX_ANGLE;
+                    primary.x <= PRIM_MIN_X;
+                    primary.z <= primary.z - PX_ANGLE;
                 end
 
             end else begin
                 // Next col.
                 px_x <= px_x + 1;
-                prim_x <= prim_x + PX_ANGLE;
+                primary.x <= primary.x + PX_ANGLE;
             end
         end
     end

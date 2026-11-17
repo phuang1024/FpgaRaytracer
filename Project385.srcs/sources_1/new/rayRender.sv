@@ -3,15 +3,17 @@
 
 import constants::*;
 
+
 module rayRender
     import divider_pkg::*;
+    import scene_pkg::*;
 (
     input logic clk, reset,
     input logic start,
     output logic done,
 
     // Primary ray to render.
-    input q8_16_t prim_x, prim_y,
+    input vec3 primary,
 
     output logic[7:0] out_r, out_g, out_b
 );
@@ -28,25 +30,25 @@ module rayRender
     divider_if div_if;
     divider divider(.*);
 
-    // TODO test: Intersect primary ray with ground plane. Checkerboard texture.
-    logic sect;
-    q8_16_t sect_x, sect_y;
-
     logic plane_sect_start, plane_sect_done;
     divider_if plane_sect_div;
+    sect_if plane_sect;
     planeSect planeSect(
         .start(plane_sect_start),
         .done(plane_sect_done),
         .div_if(plane_sect_div),
+        .sect_if(plane_sect),
         .*
     );
-    
+
     logic sphere_sect_start, sphere_sect_done;
     divider_if sphere_sect_div;
+    sect_if sphere_sect;
     sphereSect sphereSect(
         .start(sphere_sect_start),
         .done(sphere_sect_done),
         .div_if(sphere_sect_div),
+        .sect_if(sphere_sect),
         .*
     );
 
@@ -78,8 +80,8 @@ module rayRender
             out_r <= 0;
             out_g <= 0;
             out_b <= 0;
-            if (sect) begin
-                if (sect_x[16] ^ sect_y[16])
+            if (plane_sect.sect) begin
+                if (plane_sect.loc.x[16] ^ plane_sect.loc.y[16])
                     out_r <= 255;
                 else
                     out_b <= 255;

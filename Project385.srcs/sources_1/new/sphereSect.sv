@@ -2,18 +2,18 @@
 
 
 // TODO hardcoded sphere at (0, 0, 1) radius 1.
-module planeSect
+module sphereSect
     import divider_pkg::*;
+    import scene_pkg::*;
 (
     input logic clk, reset,
     input logic start,
     output logic done,
 
     divider_if div_if,
+    sect_if sect_if,
 
-    input q8_16_t prim_x, prim_y,
-    output logic sect,
-    output q8_16_t sect_x, sect_y
+    vec3 primary
 );
     typedef enum logic[2:0] {
         S_IDLE,
@@ -33,7 +33,7 @@ module planeSect
             if (start) begin
                 // TODO
                 done <= 1;
-                sect <= 0;
+                sect_if.sect <= 0;
             end
         end
     end
