@@ -8,7 +8,10 @@ import constants::*;
 module sceneRender(
     input logic clk, reset,
     input logic start,
-    output logic done
+    output logic done,
+
+    output logic[9:0] px_x, px_y,
+    output logic[7:0] render_r, render_g, render_b
 );
     typedef enum logic[1:0] {
         S_IDLE = 0,
@@ -18,13 +21,13 @@ module sceneRender(
     state_t state;
 
     // Pixel indices for sweep through frame.
-    logic[9:0] px_x, px_y;
+    //logic[9:0] px_x, px_y;
     // Primary ray. During sweep, X increases, Z decreases. Y is 1.
     vec3 primary;
 
     logic core_start, core_done;
     // Pixel render RGB output.
-    logic[7:0] render_r, render_g, render_b;
+    //logic[7:0] render_r, render_g, render_b;
     rayRender render_core(
         .clk(clk), .reset(reset),
         .start(core_start), .done(core_done),
